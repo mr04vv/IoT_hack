@@ -1,3 +1,4 @@
 import eventList from "./event"
+import updateRelation from "./update"
 
-export { eventList }
+export { eventList, updateRelation }

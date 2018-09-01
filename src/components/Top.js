@@ -3,6 +3,7 @@ import styled from "react-emotion"
 import { connect } from "react-redux"
 import { fetchEventListAction } from "../redux/events/event"
 import { fetchActionListAction } from "../redux/actions/actions";
+import { updateEventRelation } from "../redux/events/update";
 import display from "../styles/display"
 import Select from "react-select";
 
@@ -50,6 +51,12 @@ class Top extends React.Component {
     this.setState({ selectedEvents: copiedEventList })
   }
 
+  updateEventRelation(actionId, index) {
+    console.log(actionId);
+    console.log(this.state.selectedEvents[index])
+    this.props.updateEventRelation(actionId, this.state.selectedEvents[index]);
+  }
+
   render() {
     return (
       <TopPageWrapper>
@@ -61,10 +68,11 @@ class Top extends React.Component {
                 onChange={(e, index) => this.handleSelectChange(e, index)}
                 options={this.state.eventOptionList}
                 value={this.state.selectedEvents[index]}
-                placeholder={e.Event_name}
+                defaultInputValue={e.Event_name}
+                defaultValue={e.Event_id}
                 simpleValue
               />
-              <ChangeButton>変更</ChangeButton>
+              <ChangeButton onClick={() => this.updateEventRelation(e.Action_id, index)}>変更</ChangeButton>
             </ItemWrapper>
           </EventCard>
         ))}
@@ -155,7 +163,14 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   fetchEventList: () => dispatch(fetchEventListAction()),
-  fecthActionList: () => dispatch(fetchActionListAction())
+  fecthActionList: () => dispatch(fetchActionListAction()),
+  updateEventRelation: (id, eventId) => {
+    const data = {
+      event_id: eventId
+    }
+    dispatch(updateEventRelation(id, data))
+  }
+
 });
 
 
