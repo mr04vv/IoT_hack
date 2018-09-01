@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://192.168.3.21:9000";
+const API_BASE_URL = "http://192.168.11.27:9000";
 
 const client = axios.create({
   baseURL: API_BASE_URL,
@@ -9,7 +9,7 @@ const client = axios.create({
 
   // `withCredentials` indicates whether or not cross-site Access-Control requests
   // should be made using credentials
-  headers: { "X-Requested-With": "XMLHttpRequest" , 'Accept': 'application/json'}
+  headers: { "X-Requested-With": "XMLHttpRequest", 'Accept': 'application/json' }
 });
 
 

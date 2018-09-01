@@ -1,8 +1,8 @@
 import React from "react"
 import styled from "react-emotion"
-import {connect} from "react-redux"
-import {fetchEventListAction} from "../redux/events/event"
-import {fetchActionListAction} from "../redux/actions/actions";
+import { connect } from "react-redux"
+import { fetchEventListAction } from "../redux/events/event"
+import { fetchActionListAction } from "../redux/actions/actions";
 import display from "../styles/display"
 import Select from "react-select";
 
@@ -47,7 +47,7 @@ class Top extends React.Component {
   handleSelectChange(selectedEvents, index) {
     const copiedEventList = this.state.selectedEvents.slice();
     copiedEventList[index] = selectedEvents;
-    this.setState({selectedEvents: copiedEventList})
+    this.setState({ selectedEvents: copiedEventList })
   }
 
   render() {
@@ -57,11 +57,11 @@ class Top extends React.Component {
           <EventCard>
             <EventTitle>{e.Action_name}</EventTitle>
             <ItemWrapper>
-              <Select
+              <Selector
                 onChange={(e, index) => this.handleSelectChange(e, index)}
                 options={this.state.eventOptionList}
                 value={this.state.selectedEvents[index]}
-                placeholder={""}
+                placeholder={e.Event_name}
                 simpleValue
               />
               <ChangeButton>変更</ChangeButton>
@@ -77,10 +77,15 @@ const TopPageWrapper = styled("div")`
   width: 85%;
   margin: 20px auto;
   background-color: whitesmoke;
+  min-width: 320px;
   @media screen and (max-width: ${display.BREAK_POINT_SP}px) {
     margin: auto;
     width: unset;
   }
+`;
+
+const Selector = styled(Select)`
+  width: 70%;
 `;
 
 const EventCard = styled("div")`
@@ -103,20 +108,22 @@ const EventTitle = styled("div")`
   color: black;
   font-weight: bold;
   text-align: center;
-  font-size: 20px; 
+  font-size: 20px;
   margin: 30px;
   @media screen and (max-width: ${display.BREAK_POINT_SP}px) {
     font-size: 20px
-      
+
   }
 `;
 
 const ItemWrapper = styled("div")`
+  display: flex;
+  width: 100%;
 `;
 
 const ChangeButton = styled("button")`
-  margin: 10px auto;
-  height: 24px;
+  margin: 2px auto;
+  height: 30px;
   color: white;
   width: 80px;
   font-size: 10px;
