@@ -72,9 +72,6 @@ export const updateEventRelation = (id, data) => {
     dispatch(isLoading());
     return client.put(`/relations/${id}`, data).then(
       res => {
-        console.log("aaaaaa");
-        console.log(id);
-        console.log(data);
         const payload = res.data;
         dispatch(updateEventRelationSuccess(payload))
       },

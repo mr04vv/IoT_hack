@@ -1,9 +1,10 @@
 import React from "react"
 import styled from "react-emotion"
-import { connect } from "react-redux"
-import { fetchEventListAction } from "../redux/events/event"
-import { fetchActionListAction } from "../redux/actions/actions";
-import { updateEventRelation } from "../redux/events/update";
+import {connect} from "react-redux"
+import ReactLoading from "react-loading";
+import {fetchEventListAction} from "../redux/events/event"
+import {fetchActionListAction} from "../redux/actions/actions";
+import {updateEventRelation} from "../redux/events/update";
 import display from "../styles/display"
 import Select from "react-select";
 
@@ -16,7 +17,10 @@ class Top extends React.Component {
       events: null,
       selectedEvents: [],
       eventOptionList: [],
-      actions: null
+      actions: null,
+      loading: false,
+      success: false,
+      error: false
     }
   }
 
@@ -30,6 +34,24 @@ class Top extends React.Component {
     this.props.fecthActionList().then(() => {
       this.setState({
         actions: this.props.actions.relations
+      });
+      this.state.actions.map((a) => {
+        if (this.state.selectedEvents.length > 0) {
+          const e = this.state.selectedEvents.concat([{
+            label: a.Event_name,
+            value: a.Event_id
+          }]);
+          this.setState({
+            selectedEvents: e
+          })
+        } else {
+          this.setState({
+            selectedEvents: [{
+              label: a.Event_name,
+              value: a.Event_id
+            }]
+          })
+        }
       })
     })
   }
@@ -47,41 +69,95 @@ class Top extends React.Component {
 
   handleSelectChange(selectedEvents, index) {
     const copiedEventList = this.state.selectedEvents.slice();
-    copiedEventList[index] = selectedEvents;
-    this.setState({ selectedEvents: copiedEventList })
+    copiedEventList[index] = {
+      label: selectedEvents.label,
+      value: selectedEvents.value
+    };
+    this.setState({selectedEvents: copiedEventList})
   }
 
   updateEventRelation(actionId, index) {
-    console.log(actionId);
-    console.log(this.state.selectedEvents[index])
-    this.props.updateEventRelation(actionId, this.state.selectedEvents[index]);
+    this.setState({
+      loading: true
+    });
+    this.props.updateEventRelation(actionId, this.state.selectedEvents[index].value).then(() => {
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+            this.setState({
+              loading: false,
+              success: true
+            })
+          }, 1000
+        )
+      }).then(() => {
+        this.props.fetchEventList().then(() => {
+          setTimeout(() => {
+              this.setState({
+                success: false
+              })
+            }, 1000
+          )
+        })
+
+      })
+    }).catch(() => {
+
+        return new Promise((resolve) => {
+          setTimeout(() => {
+              resolve();
+              this.setState({
+                loading: false,
+                error: true
+              })
+            }, 1000
+          )
+        }).then(() => {
+          setTimeout(() => {
+              this.setState({
+                error: false
+              })
+            }, 1000
+          )
+        })
+      }
+    );
   }
 
   render() {
     return (
       <TopPageWrapper>
-        {this.state.actions && (this.state.actions.map((e, index) =>
+        {this.state.error && <ErrorMessage>変更に失敗しました</ErrorMessage>}
+        {this.state.success && (
+          <SuccessMessage>正常に変更されました</SuccessMessage>
+        )}
+        {this.state.actions && this.state.selectedEvents && (this.state.actions.map((e, index) =>
           <EventCard>
             <EventTitle>{e.Action_name}</EventTitle>
             <ItemWrapper>
               <Selector
-                onChange={(e, index) => this.handleSelectChange(e, index)}
+                onChange={(e) => this.handleSelectChange(e, index)}
                 options={this.state.eventOptionList}
                 value={this.state.selectedEvents[index]}
-                defaultInputValue={e.Event_name}
-                defaultValue={e.Event_id}
                 simpleValue
               />
               <ChangeButton onClick={() => this.updateEventRelation(e.Action_id, index)}>変更</ChangeButton>
             </ItemWrapper>
           </EventCard>
         ))}
+        {this.state.loading &&
+        <LoadingWrapper><LoadingStyle><ReactLoading type={"spinningBubbles"} color={"#fff"} width={"100%"}
+        /></LoadingStyle></LoadingWrapper>}
+
       </TopPageWrapper>
     )
   }
 }
 
-const TopPageWrapper = styled("div")`
+
+const
+  TopPageWrapper = styled("div")`
   width: 85%;
   margin: 20px auto;
   background-color: whitesmoke;
@@ -92,11 +168,13 @@ const TopPageWrapper = styled("div")`
   }
 `;
 
-const Selector = styled(Select)`
+const
+  Selector = styled(Select)`
   width: 70%;
 `;
 
-const EventCard = styled("div")`
+const
+  EventCard = styled("div")`
   display: block;
   height: 100%;
   background: white;
@@ -112,7 +190,8 @@ const EventCard = styled("div")`
   }
 `;
 
-const EventTitle = styled("div")`
+const
+  EventTitle = styled("div")`
   color: black;
   font-weight: bold;
   text-align: center;
@@ -124,12 +203,14 @@ const EventTitle = styled("div")`
   }
 `;
 
-const ItemWrapper = styled("div")`
+const
+  ItemWrapper = styled("div")`
   display: flex;
   width: 100%;
 `;
 
-const ChangeButton = styled("button")`
+const
+  ChangeButton = styled("button")`
   margin: 2px auto;
   height: 30px;
   color: white;
@@ -156,22 +237,67 @@ const ChangeButton = styled("button")`
   }
 `;
 
-const mapStateToProps = state => ({
-  events: state.eventList.data,
-  actions: state.actionList.data
-});
+const
+  LoadingWrapper = styled("div")`
+  background-color: black;
+  opacity:0.2;
+  display: block;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+`;
 
-const mapDispatchToProps = dispatch => ({
-  fetchEventList: () => dispatch(fetchEventListAction()),
-  fecthActionList: () => dispatch(fetchActionListAction()),
-  updateEventRelation: (id, eventId) => {
-    const data = {
-      event_id: eventId
+const
+  LoadingStyle = styled("div")`
+  margin: auto;
+  width: 100px;
+  margin-top: 50%;
+`;
+
+const
+  SuccessMessage = styled("div")`
+  margin: auto;
+  color: #0076ce;
+  padding: 8px;  
+  position: sticky;
+  text-align: center;
+`;
+
+const
+  ErrorMessage = styled("div")`
+  margin: auto;
+  padding: 8px;
+  position: sticky;
+  text-align: center;
+  color: '#DE350B';
+`;
+
+
+const
+  mapStateToProps = state => ({
+    events: state.eventList.data,
+    actions: state.actionList.data
+  });
+
+const
+  mapDispatchToProps = dispatch => ({
+    fetchEventList: () => dispatch(fetchEventListAction()),
+    fecthActionList: () => dispatch(fetchActionListAction()),
+    updateEventRelation: (id, eventId) => {
+      const data = {
+        event_id: eventId
+      }
+      return dispatch(updateEventRelation(id, data))
     }
-    dispatch(updateEventRelation(id, data))
-  }
 
-});
+  });
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Top)
+export default connect(mapStateToProps, mapDispatchToProps)
+
+(
+  Top
+)
