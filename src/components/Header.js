@@ -1,6 +1,7 @@
 import React from "react"
 import styled from "react-emotion"
 import logo from "../images/logo_transparent.png"
+import img from "../images/logo2.png"
 
 class Header extends React.Component {
 
@@ -8,6 +9,7 @@ class Header extends React.Component {
   render() {
     return (
       <HeaderWrapper>
+        <LogoWrapper src={img}/>
         <LogoWrapper src={logo}/>
       </HeaderWrapper>
     )
