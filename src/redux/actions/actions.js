@@ -78,6 +78,7 @@ export const fetchActionListAction = () => {
       },
       err => {
         dispatch(fetchActionListFail(err));
+        throw err
       }
     )
   }
