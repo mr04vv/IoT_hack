@@ -1,0 +1,19 @@
+{
+  "method" : "NN",
+  "parameter" : {
+    "method" : "lsh",
+    "parameter" : {
+      "hash_num" :512 
+    },
+    "local_sensitivity" : 0.1,
+    "nearest_neighbor_num" : 10 
+  },
+  "converter" : {
+    "num_filter_types" : {},
+    "num_filter_rules" : [],
+    "num_types" : {},
+    "num_rules" : [
+      { "key" : "*", "type" : "num"}
+    ]
+  }
+}
